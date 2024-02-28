@@ -1,6 +1,7 @@
 import asyncio
 
 from datetime import datetime, timedelta
+from json import dumps
 from functools import lru_cache
 
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -38,7 +39,10 @@ class MongoService:
             start = dates[i-1]
             tasks.append(asyncio.create_task(self.aggregate(start, end)))
         dataset = await asyncio.gather(*tasks)
-        print(dataset)
+        return dumps({
+            "dataset": dataset,
+            "labels": [ele.isoformat() for ele in dates[:-1]]
+        })
 
     async def aggregate(self, dt_from: datetime, dt_upto: datetime) -> int:
         cursor = self.sample.aggregate([
