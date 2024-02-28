@@ -1,11 +1,15 @@
 import asyncio
 
 from datetime import datetime, timedelta
-from json import dumps
+from json import dumps, loads, JSONDecodeError
 from functools import lru_cache
 
 from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import ValidationError
 from pymongo.collection import Collection
+
+from exeptions.base import WrongDataError
+from models.schemas import InputData
 
 
 class MongoService:
@@ -14,12 +18,13 @@ class MongoService:
         self.db = self.client["dump"]
         self.sample: Collection = self.db["sample_collection"]
 
-    async def get_avarage_salary(self,
-                                 dt_from: datetime,
-                                 dt_upto: datetime,
-                                 group_type: str
-                                 ) -> str:
-        match group_type:
+    async def get_avarage_salary(self, msg: str) -> str:
+        try:
+            data = InputData(**loads(msg))
+        except (ValidationError, JSONDecodeError):
+            raise WrongDataError()
+        dt_from, dt_upto = data.dt_from, data.dt_upto
+        match data.group_type:
             case "month":
                 diff = dt_upto.month - dt_from.month
                 dates = [(dt_from.replace(day=1)+timedelta(days=31*n)).replace(day=1) \
