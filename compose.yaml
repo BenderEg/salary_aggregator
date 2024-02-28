@@ -29,6 +29,17 @@ services:
     networks:
       - rlp
 
+  bot:
+    build: ./app
+    container_name: bot
+    depends_on:
+        - mongodb
+    env_file:
+        - .env
+    networks:
+        - rlp
+    restart: always
+
 networks:
     rlp:
         name: rlp
