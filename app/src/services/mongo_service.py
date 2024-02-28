@@ -1,3 +1,5 @@
+import asyncio
+
 from datetime import datetime, timedelta
 from functools import lru_cache
 
@@ -30,14 +32,19 @@ class MongoService:
                 dates = [dt_from.replace(minute=0)+timedelta(hours=n) for n in range(diff+2)]
         dates[0] = dt_from
         dates[-1] = dt_upto
-        dataset = []
+        tasks = []
         for i in range(1, len(dates)):
             end = dates[i]
             start = dates[i-1]
-            cursor = self.sample.aggregate([
+            tasks.append(asyncio.create_task(self.aggregate(start, end)))
+        dataset = await asyncio.gather(*tasks)
+        print(dataset)
+
+    async def aggregate(self, dt_from: datetime, dt_upto: datetime) -> int:
+        cursor = self.sample.aggregate([
                 {"$match":
                 {
-                    "dt": {"$gte": start, "$lt": end}
+                    "dt": {"$gte": dt_from, "$lt": dt_upto}
                 }
                 },
                 {
@@ -48,12 +55,11 @@ class MongoService:
                 },
             ]
             )
-            try:
-                document: dict = await cursor.next()
-                dataset.append(document.get("total_salary"))
-            except StopAsyncIteration:
-                dataset.append(0)
-        print(dataset)
+        try:
+            document: dict = await cursor.next()
+            return document.get("total_salary")
+        except StopAsyncIteration:
+            return 0
 
 @lru_cache()
 def get_mongo_service(client: AsyncIOMotorClient) -> MongoService: # type: ignore

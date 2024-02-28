@@ -13,5 +13,5 @@ class Container(containers.DeclarativeContainer):
     mongo_client = providers.Resource(get_mongo_client,
                                      settings().mongo.connection
                                      )
-    mongo_service: providers.Singleton[MongoService] = providers.Singleton(
+    mongo_service: providers.Factory[MongoService] = providers.Factory(
         MongoService, mongo_client)
