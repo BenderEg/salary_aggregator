@@ -1,0 +1,34 @@
+version: '3.3'
+
+services:
+  mongodb:
+    container_name: mongodb
+    restart: always
+    image: mongo
+    ports:
+      - 27017:27017
+    expose:
+      - "27017"
+    volumes:
+      #- /etc/localtime:/etc/localtime:ro
+      - ./data:/data/db
+      - ./dump_for_test_task/dump/sampleDB/:/dump/
+    networks:
+      - rlp
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+    depends_on:
+      - mongodb
+    networks:
+      - rlp
+
+networks:
+    rlp:
+        name: rlp
