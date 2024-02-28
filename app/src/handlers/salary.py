@@ -17,8 +17,8 @@ async def aggregate_salary(message: Message,
                            service: MongoService = Provide[Container.mongo_service]
                            ):
     await service.get_avarage_salary(
-        datetime.fromisoformat("2022-09-01T00:00:00"),
-        datetime.fromisoformat("2022-12-31T23:59:00"),
-        "month"
+        datetime.fromisoformat("2022-10-01T00:00:00"),
+        datetime.fromisoformat("2022-11-30T23:59:00"),
+        "day"
     )
     await message.answer(text=msg)

@@ -21,6 +21,9 @@ class MongoService:
                 diff = dt_upto.month - dt_from.month
                 dates = [(dt_from.replace(day=1)+timedelta(days=31*n)).replace(day=1) \
                          for n in range(diff+2)]
+            case "day":
+                diff = (dt_upto - dt_from).days
+                dates = [dt_from.replace(hour=0, minute=0)+timedelta(days=n) for n in range(diff+2)]
         dataset = []
         for i in range(1, len(dates)):
             end = dates[i]
