@@ -32,12 +32,14 @@ class MongoService:
             case "day":
                 diff = (dt_upto - dt_from).days
                 dates = [dt_from.replace(hour=0, minute=0)+timedelta(days=n) for n in range(diff+2)]
+                dates[0] = dt_from
+                dates[-1] = dt_upto
             case "hour":
                 prep = dt_upto.replace(minute=0) - dt_from.replace(minute=0)
                 diff = prep.days*24+prep.seconds//(60*60)
                 dates = [dt_from.replace(minute=0)+timedelta(hours=n) for n in range(diff+2)]
-        dates[0] = dt_from
-        dates[-1] = dt_upto
+                dates[0] = dt_from
+                dates[-1] = dt_upto
         tasks = []
         for i in range(1, len(dates)):
             end = dates[i]
